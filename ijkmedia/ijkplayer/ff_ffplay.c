@@ -3979,6 +3979,18 @@ static void ffp_show_version_int(FFPlayer *ffp, const char *module, unsigned ver
            (unsigned int)IJKVERSION_GET_MICRO(version));
 }
 
+//字符串拼接
+static char *appendCharPointer(const char *s1, const char *s2) {
+    char *result = malloc(strlen(s1) + strlen(s2) + 1);
+
+    if (result == NULL) exit(1);
+
+    strcpy(result, s1);
+    strcat(result, s2);
+
+    return result;
+}
+
 int ffp_prepare_async_l(FFPlayer *ffp, const char *file_name)
 {
     assert(ffp);
@@ -4002,13 +4014,32 @@ int ffp_prepare_async_l(FFPlayer *ffp, const char *file_name)
     }
 
     av_log(NULL, AV_LOG_INFO, "===== versions =====\n");
+    ffp_notify_msg4(ffp, FFP_MSG_IJK_LOG, 0, 0, "===== versions =====", sizeof("===== versions ====="));
+
     ffp_show_version_str(ffp, "ijkplayer",      ijk_version_info());
+    char *c0 = appendCharPointer("ijkplayer --> ", ijk_version_info());
+    ffp_notify_msg4(ffp, FFP_MSG_IJK_LOG, 0, 0, c0, sizeof(c0) * strlen(c0));
+
     ffp_show_version_str(ffp, "FFmpeg",         av_version_info());
+    char *c1 = appendCharPointer("FFmpeg --> ", av_version_info());
+    ffp_notify_msg4(ffp, FFP_MSG_IJK_LOG, 0, 0, c1, sizeof(c1) * strlen(c1));
+
     ffp_show_version_int(ffp, "libavutil",      avutil_version());
+    //char *c2 = appendCharPointer("libavutil --> ", avutil_version());
+    //ffp_notify_msg4(ffp, FFP_MSG_IJK_LOG, 0, 0, c2, sizeof(c2) * strlen(c2));
+
     ffp_show_version_int(ffp, "libavcodec",     avcodec_version());
+
+
     ffp_show_version_int(ffp, "libavformat",    avformat_version());
+
+
     ffp_show_version_int(ffp, "libswscale",     swscale_version());
+
+
     ffp_show_version_int(ffp, "libswresample",  swresample_version());
+
+
     av_log(NULL, AV_LOG_INFO, "===== options =====\n");
     ffp_show_dict(ffp, "player-opts", ffp->player_opts);
     ffp_show_dict(ffp, "format-opts", ffp->format_opts);

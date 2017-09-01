@@ -23,8 +23,8 @@ import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
-import android.graphics.SurfaceTexture;
 import android.graphics.Rect;
+import android.graphics.SurfaceTexture;
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
 import android.media.RingtoneManager;
@@ -77,6 +77,7 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
     private static final int MEDIA_TIMED_TEXT = 99;
     private static final int MEDIA_ERROR = 100;
     private static final int MEDIA_INFO = 200;
+    private static final int MEDIA_LOG = 300;
 
     protected static final int MEDIA_SET_VIDEO_SAR = 10001;
 
@@ -1040,6 +1041,21 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
                 player.notifyOnVideoSizeChanged(player.mVideoWidth, player.mVideoHeight,
                         player.mVideoSarNum, player.mVideoSarDen);
                 break;
+                case MEDIA_LOG:
+                    if (msg.obj instanceof String) {
+                        Log.i("yuyidong", "MEDIA_LOG-->" + ((String) msg.obj));
+                        Log.w("yuyidong", "MEDIA_LOG-->" + ((String) msg.obj));
+                        Log.e("yuyidong", "MEDIA_LOG-->" + ((String) msg.obj));
+                    } else if (msg.obj != null) {
+                        Log.i("yuyidong", "MEDIA_LOG  not null  -->" + (msg.obj.getClass().getName()));
+                        Log.w("yuyidong", "MEDIA_LOG  not null  -->" + (msg.obj.getClass().getName()));
+                        Log.e("yuyidong", "MEDIA_LOG  not null  -->" + (msg.obj.getClass().getName()));
+                    } else {
+                        Log.i("yuyidong", "MEDIA_LOG  null");
+                        Log.w("yuyidong", "MEDIA_LOG  null");
+                        Log.e("yuyidong", "MEDIA_LOG  null");
+                    }
+                    break;
 
             default:
                 DebugLog.e(TAG, "Unknown message type " + msg.what);

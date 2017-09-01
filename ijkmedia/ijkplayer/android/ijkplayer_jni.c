@@ -901,7 +901,6 @@ static void message_loop_n(JNIEnv *env, IjkMediaPlayer *mp)
 
         // block-get should never return 0
         assert(retval > 0);
-
         switch (msg.what) {
         case FFP_MSG_FLUSH:
             MPTRACE("FFP_MSG_FLUSH:\n");
@@ -983,6 +982,16 @@ static void message_loop_n(JNIEnv *env, IjkMediaPlayer *mp)
             }
             else {
                 post_event2(env, weak_thiz, MEDIA_GET_IMG_STATE, msg.arg1, msg.arg2, NULL);
+            }
+            break;
+        case FFP_MSG_IJK_LOG:
+            if (msg.obj) {
+                jstring text = (*env)->NewStringUTF(env, (char *)msg.obj);
+                post_event2(env, weak_thiz, MEDIA_IJK_LOG, 0, 0, text);
+                J4A_DeleteLocalRef__p(env, &text);
+            }
+            else {
+                post_event2(env, weak_thiz, MEDIA_IJK_LOG, 0, 0, NULL);
             }
             break;
         default:
