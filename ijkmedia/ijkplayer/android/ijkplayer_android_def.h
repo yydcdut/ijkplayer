@@ -41,6 +41,7 @@ enum media_event_type {
     MEDIA_ERROR             = 100,      // arg1, arg2
     MEDIA_INFO              = 200,      // arg1, arg2
     MEDIA_IJK_LOG           = 300,      // obj
+    MEDIA_IJK_ERROR         = 400,      // arg1
 
 
 
@@ -82,6 +83,7 @@ enum media_error_type {
     MEDIA_ERROR_TIMED_OUT   = -110,
 
     MEDIA_ERROR_IJK_PLAYER  = -10000,
+    MEDIA_ERROR_IJK_PLAYER_IO  = -11004,
 };
 
 // Info and warning codes for the media player framework.  These are non fatal,
