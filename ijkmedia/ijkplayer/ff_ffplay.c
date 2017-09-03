@@ -3454,6 +3454,7 @@ static VideoState *stream_open(FFPlayer *ffp, const char *filename, AVInputForma
 
     is->read_tid = SDL_CreateThreadEx(&is->_read_tid, read_thread, ffp, "ff_read");
     if (!is->read_tid) {
+        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_READ_THREAD);
         av_log(NULL, AV_LOG_FATAL, "SDL_CreateThread(): %s\n", SDL_GetError());
 fail:
         is->abort_request = true;
@@ -4067,7 +4068,7 @@ int ffp_prepare_async_l(FFPlayer *ffp, const char *file_name)
 
     VideoState *is = stream_open(ffp, file_name, NULL);
     if (!is) {
-        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_IO);
+        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_STREAM_OPEN);
         av_log(NULL, AV_LOG_WARNING, "ffp_prepare_async_l: stream_open failed OOM");
         return EIJK_OUT_OF_MEMORY;
     }

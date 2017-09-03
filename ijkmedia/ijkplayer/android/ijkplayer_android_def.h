@@ -83,7 +83,8 @@ enum media_error_type {
     MEDIA_ERROR_TIMED_OUT   = -110,
 
     MEDIA_ERROR_IJK_PLAYER  = -10000,
-    MEDIA_ERROR_IJK_PLAYER_IO  = -11004,
+    MEDIA_ERROR_IJK_PLAYER_STREAM_OPEN  = -10001,
+    MEDIA_ERROR_IJK_PLAYER_READ_THREAD  = -10002,
 };
 
 // Info and warning codes for the media player framework.  These are non fatal,
