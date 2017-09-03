@@ -3400,19 +3400,28 @@ static VideoState *stream_open(FFPlayer *ffp, const char *filename, AVInputForma
 #endif
 
     /* start video display */
-    if (frame_queue_init(&is->pictq, &is->videoq, ffp->pictq_size, 1) < 0)
+    if (frame_queue_init(&is->pictq, &is->videoq, ffp->pictq_size, 1) < 0) {
+        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_FRAME_QUEUE_INIT_VIDEO);
         goto fail;
-    if (frame_queue_init(&is->subpq, &is->subtitleq, SUBPICTURE_QUEUE_SIZE, 0) < 0)
+    }
+    if (frame_queue_init(&is->subpq, &is->subtitleq, SUBPICTURE_QUEUE_SIZE, 0) < 0) {
+        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_FRAME_QUEUE_INIT_SUBTITLE);
         goto fail;
-    if (frame_queue_init(&is->sampq, &is->audioq, SAMPLE_QUEUE_SIZE, 1) < 0)
+    }
+    if (frame_queue_init(&is->sampq, &is->audioq, SAMPLE_QUEUE_SIZE, 1) < 0) {
+        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_FRAME_QUEUE_INIT_AUDIO);
         goto fail;
+    }
 
     if (packet_queue_init(&is->videoq) < 0 ||
         packet_queue_init(&is->audioq) < 0 ||
-        packet_queue_init(&is->subtitleq) < 0)
+        packet_queue_init(&is->subtitleq) < 0) {
+        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_FRAME_QUEUE_INIT_ALL);
         goto fail;
+    }
 
     if (!(is->continue_read_thread = SDL_CreateCond())) {
+        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_CONTINUE_READ_THREAD);
         av_log(NULL, AV_LOG_FATAL, "SDL_CreateCond(): %s\n", SDL_GetError());
         goto fail;
     }
