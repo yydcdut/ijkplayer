@@ -2638,6 +2638,7 @@ static int stream_component_open(FFPlayer *ffp, int stream_index)
     if (forced_codec_name)
         codec = avcodec_find_decoder_by_name(forced_codec_name);
     if (!codec) {
+        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_AVCODEC_NOT_FIND);
         if (forced_codec_name) av_log(NULL, AV_LOG_WARNING,
                                       "No codec could be found with name '%s'\n", forced_codec_name);
         else                   av_log(NULL, AV_LOG_WARNING,
@@ -2672,6 +2673,7 @@ static int stream_component_open(FFPlayer *ffp, int stream_index)
     if (avctx->codec_type == AVMEDIA_TYPE_VIDEO || avctx->codec_type == AVMEDIA_TYPE_AUDIO)
         av_dict_set(&opts, "refcounted_frames", "1", 0);
     if ((ret = avcodec_open2(avctx, codec, &opts)) < 0) {
+        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_AVCODEC_OPEN);
         goto fail;
     }
     if ((t = av_dict_get(opts, "", NULL, AV_DICT_IGNORE_SUFFIX))) {
@@ -2713,8 +2715,10 @@ static int stream_component_open(FFPlayer *ffp, int stream_index)
 #endif
 
         /* prepare audio output */
-        if ((ret = audio_open(ffp, channel_layout, nb_channels, sample_rate, &is->audio_tgt)) < 0)
+        if ((ret = audio_open(ffp, channel_layout, nb_channels, sample_rate, &is->audio_tgt)) < 0) {
+            ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_AUDIO_OPEN);
             goto fail;
+        }
         ffp_set_audio_codec_info(ffp, AVCODEC_MODULE_NAME, avcodec_get_name(avctx->codec_id));
         is->audio_hw_buf_size = ret;
         is->audio_src = is->audio_tgt;
@@ -2736,8 +2740,11 @@ static int stream_component_open(FFPlayer *ffp, int stream_index)
             is->auddec.start_pts = is->audio_st->start_time;
             is->auddec.start_pts_tb = is->audio_st->time_base;
         }
-        if ((ret = decoder_start(&is->auddec, audio_thread, ffp, "ff_audio_dec")) < 0)
+        if ((ret = decoder_start(&is->auddec, audio_thread, ffp, "ff_audio_dec")) < 0) {
+            ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_AUDIO_DECODER_START);
             goto out;
+        }
+
         SDL_AoutPauseAudio(ffp->aout, 0);
         break;
     case AVMEDIA_TYPE_VIDEO:
@@ -2746,10 +2753,15 @@ static int stream_component_open(FFPlayer *ffp, int stream_index)
 
         decoder_init(&is->viddec, avctx, &is->videoq, is->continue_read_thread);
         ffp->node_vdec = ffpipeline_open_video_decoder(ffp->pipeline, ffp);
-        if (!ffp->node_vdec)
+        if (!ffp->node_vdec) {
+            ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_OPEN_VIDEO_DECODER);
             goto fail;
-        if ((ret = decoder_start(&is->viddec, video_thread, ffp, "ff_video_dec")) < 0)
+        }
+
+        if ((ret = decoder_start(&is->viddec, video_thread, ffp, "ff_video_dec")) < 0) {
+            ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_VIDEO_DECODER_START);
             goto out;
+        }
         is->queue_attachments_req = 1;
 
         if (ffp->max_fps >= 0) {
@@ -2861,6 +2873,7 @@ static int read_thread(void *arg)
     int64_t io_tick_counter = 0;
 
     if (!wait_mutex) {
+        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_WAIT_MUTEX);
         av_log(NULL, AV_LOG_FATAL, "SDL_CreateMutex(): %s\n", SDL_GetError());
         ret = AVERROR(ENOMEM);
         goto fail;
@@ -2874,6 +2887,7 @@ static int read_thread(void *arg)
 
     ic = avformat_alloc_context();
     if (!ic) {
+        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_AVFORMAT_ALLOC_CONTEXT);
         av_log(NULL, AV_LOG_FATAL, "Could not allocate context.\n");
         ret = AVERROR(ENOMEM);
         goto fail;
@@ -2900,6 +2914,7 @@ static int read_thread(void *arg)
         is->iformat = av_find_input_format(ffp->iformat_name);
     err = avformat_open_input(&ic, is->filename, is->iformat, &ffp->format_opts);
     if (err < 0) {
+        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_AVFORMAT_OPEN_INPUT);
         print_error(is->filename, err);
         ret = -1;
         goto fail;
@@ -2931,6 +2946,7 @@ static int read_thread(void *arg)
     av_freep(&opts);
 
     if (err < 0) {
+        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_AVFORMAT_FIND_STREAM_INFO);
         av_log(NULL, AV_LOG_WARNING,
                "%s: could not find codec parameters\n", is->filename);
         ret = -1;
@@ -3055,6 +3071,7 @@ static int read_thread(void *arg)
         ijkmeta_set_int64_l(ffp->meta, IJKM_KEY_TIMEDTEXT_STREAM, st_index[AVMEDIA_TYPE_SUBTITLE]);
 
     if (is->video_stream < 0 && is->audio_stream < 0) {
+        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_NO_VIDEO_OR_AUDIO_STREAM);
         av_log(NULL, AV_LOG_FATAL, "Failed to open file '%s' or configure filtergraph\n",
                is->filename);
         ret = -1;
@@ -3457,13 +3474,14 @@ static VideoState *stream_open(FFPlayer *ffp, const char *filename, AVInputForma
 
     is->video_refresh_tid = SDL_CreateThreadEx(&is->_video_refresh_tid, video_refresh_thread, ffp, "ff_vout");
     if (!is->video_refresh_tid) {
+        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_VIDEO_REFRESH_TID);
         av_freep(&ffp->is);
         return NULL;
     }
 
     is->read_tid = SDL_CreateThreadEx(&is->_read_tid, read_thread, ffp, "ff_read");
     if (!is->read_tid) {
-        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_READ_THREAD);
+        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_READ_TID);
         av_log(NULL, AV_LOG_FATAL, "SDL_CreateThread(): %s\n", SDL_GetError());
 fail:
         is->abort_request = true;
