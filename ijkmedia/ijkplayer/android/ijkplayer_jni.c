@@ -40,6 +40,10 @@
 #include "ijksdl/android/ijksdl_codec_android_mediadef.h"
 #include "ijkavformat/ijkavformat.h"
 
+#include "../ijkplayer_internal.h"
+#include "../ff_ffmsg.h"
+#include "../ijk_utils.h"
+
 #define JNI_MODULE_PACKAGE      "tv/danmaku/ijk/media/player"
 #define JNI_CLASS_IJKPLAYER     "tv/danmaku/ijk/media/player/IjkMediaPlayer"
 #define JNI_IJK_MEDIA_EXCEPTION "tv/danmaku/ijk/media/player/IjkMediaException"
@@ -56,6 +60,25 @@ typedef struct player_fields_t {
     jclass clazz;
 } player_fields_t;
 static player_fields_t g_clazz;
+
+typedef struct IjkMediaPlayer IjkMediaPlayer;
+struct FFPlayer;
+
+inline static void post_event2(JNIEnv *env, jobject weak_this, int what, int arg1, int arg2, jobject obj)
+{
+    // MPTRACE("post_event2(%p, %p, %d, %d, %d, %p)", (void*)env, (void*) weak_this, what, arg1, arg2, (void*)obj);
+    J4AC_IjkMediaPlayer__postEventFromNative(env, weak_this, what, arg1, arg2, obj);
+    // MPTRACE("post_event2()=void");
+}
+
+//post出去
+static void post_event2_log(JNIEnv *env, IjkMediaPlayer *mp, char* str) {
+    jobject weak_thiz = (jobject) ijkmp_get_weak_thiz(mp);
+    jstring text = (*env)->NewStringUTF(env, str);
+    //post_event2(env, weak_thiz, MEDIA_IJK_LOG, 0, 0, text);
+    post_event_log(env, weak_thiz, MEDIA_IJK_LOG, 0, 0, text);
+    J4A_DeleteLocalRef__p(env, &text);
+}
 
 static int inject_callback(void *opaque, int type, void *data, size_t data_size);
 static bool mediacodec_select_callback(void *opaque, ijkmp_mediacodecinfo_context *mcc);
@@ -205,6 +228,9 @@ IjkMediaPlayer_setDataSourceCallback(JNIEnv *env, jobject thiz, jobject callback
     char uri[128];
     int64_t nativeMediaDataSource = 0;
     IjkMediaPlayer *mp = jni_get_media_player(env, thiz);
+    if (mp->ffplayer) {
+        post_event2_log(env, mp, "IjkMediaPlayer_setDataSourceCallback");
+    }
     JNI_CHECK_GOTO(callback, env, "java/lang/IllegalArgumentException", "mpjni: setDataSourceCallback: null fd", LABEL_RETURN);
     JNI_CHECK_GOTO(mp, env, "java/lang/IllegalStateException", "mpjni: setDataSourceCallback: null mp", LABEL_RETURN);
 
@@ -212,6 +238,12 @@ IjkMediaPlayer_setDataSourceCallback(JNIEnv *env, jobject thiz, jobject callback
     JNI_CHECK_GOTO(nativeMediaDataSource, env, "java/lang/IllegalStateException", "mpjni: jni_set_media_data_source: NewGlobalRef", LABEL_RETURN);
 
     ALOGV("setDataSourceCallback: %"PRId64"\n", nativeMediaDataSource);
+    if (mp->ffplayer) {
+        char str[10];
+        convertIntPRId642Str(str, nativeMediaDataSource);
+        char* val = appendCharPointer("setDataSourceCallback: ", str);
+        post_event2_log(env, mp, val);
+    }
     snprintf(uri, sizeof(uri), "ijkmediadatasource:%"PRId64, nativeMediaDataSource);
 
     retval = ijkmp_set_data_source(mp, uri);
@@ -558,6 +590,9 @@ IjkMediaPlayer_setOptionLong(JNIEnv *env, jobject thiz, jint category, jobject n
 {
     MPTRACE("%s\n", __func__);
     IjkMediaPlayer *mp = jni_get_media_player(env, thiz);
+    if (mp->ffplayer) {
+        post_event2_log(env, mp, "IjkMediaPlayer_setOptionLong");
+    }
     const char *c_name = NULL;
     JNI_CHECK_GOTO(mp, env, "java/lang/IllegalStateException", "mpjni: setOptionLong: null mp", LABEL_RETURN);
 
@@ -739,6 +774,9 @@ static void
 IjkMediaPlayer_native_init(JNIEnv *env)
 {
     MPTRACE("%s\n", __func__);
+    /*if (mp->ffplayer) {
+        post_event2_log(env, mp, "IjkMediaPlayer_native_init");
+    }*/
 }
 
 static void
@@ -747,6 +785,10 @@ IjkMediaPlayer_native_setup(JNIEnv *env, jobject thiz, jobject weak_this)
     MPTRACE("%s\n", __func__);
     IjkMediaPlayer *mp = ijkmp_android_create(message_loop);
     JNI_CHECK_GOTO(mp, env, "java/lang/OutOfMemoryError", "mpjni: native_setup: ijkmp_create() failed", LABEL_RETURN);
+
+    if (mp->ffplayer) {
+        post_event2_log(env, mp, "IjkMediaPlayer_native_setup");
+    }
 
     jni_set_media_player(env, thiz, mp);
     ijkmp_set_weak_thiz(mp, (*env)->NewGlobalRef(env, weak_this));
@@ -880,12 +922,12 @@ inline static void post_event(JNIEnv *env, jobject weak_this, int what, int arg1
     // MPTRACE("post_event()=void");
 }
 
-inline static void post_event2(JNIEnv *env, jobject weak_this, int what, int arg1, int arg2, jobject obj)
+/*inline static void post_event2(JNIEnv *env, jobject weak_this, int what, int arg1, int arg2, jobject obj)
 {
     // MPTRACE("post_event2(%p, %p, %d, %d, %d, %p)", (void*)env, (void*) weak_this, what, arg1, arg2, (void*)obj);
     J4AC_IjkMediaPlayer__postEventFromNative(env, weak_this, what, arg1, arg2, obj);
     // MPTRACE("post_event2()=void");
-}
+}*/
 
 static void message_loop_n(JNIEnv *env, IjkMediaPlayer *mp)
 {
