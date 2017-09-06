@@ -2626,8 +2626,11 @@ static int stream_component_open(FFPlayer *ffp, int stream_index)
         return AVERROR(ENOMEM);
 
     ret = avcodec_parameters_to_context(avctx, ic->streams[stream_index]->codecpar);
-    if (ret < 0)
+    if (ret < 0){
+        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_AVCODEC_NOT_FIND);
         goto fail;
+    }
+        
     av_codec_set_pkt_timebase(avctx, ic->streams[stream_index]->time_base);
 
     codec = avcodec_find_decoder(avctx->codec_id);
