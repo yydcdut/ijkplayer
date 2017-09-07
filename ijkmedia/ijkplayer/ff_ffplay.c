@@ -2619,18 +2619,23 @@ static int stream_component_open(FFPlayer *ffp, int stream_index)
     int ret = 0;
     int stream_lowres = ffp->lowres;
 
-    if (stream_index < 0 || stream_index >= ic->nb_streams)
+    if (stream_index < 0 || stream_index >= ic->nb_streams) {
+        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_STREAM_INDEX);
         return -1;
+    }
+
     avctx = avcodec_alloc_context3(NULL);
-    if (!avctx)
+    if (!avctx) {
+        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_AVCODEC_ALLOC_CONTEXT3);
         return AVERROR(ENOMEM);
+    }
 
     ret = avcodec_parameters_to_context(avctx, ic->streams[stream_index]->codecpar);
     if (ret < 0){
-        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_AVCODEC_NOT_FIND);
+        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_AVCODEC_PARAMETERS_TO_CONTEXT);
         goto fail;
     }
-        
+
     av_codec_set_pkt_timebase(avctx, ic->streams[stream_index]->time_base);
 
     codec = avcodec_find_decoder(avctx->codec_id);
@@ -2704,6 +2709,7 @@ static int stream_component_open(FFPlayer *ffp, int stream_index)
             is->audio_filter_src.fmt            = avctx->sample_fmt;
             SDL_LockMutex(ffp->af_mutex);
             if ((ret = configure_audio_filters(ffp, ffp->afilters, 0)) < 0) {
+                ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_CONFIGURE_AUDIO_FILTERS);
                 SDL_UnlockMutex(ffp->af_mutex);
                 goto fail;
             }
@@ -2747,7 +2753,6 @@ static int stream_component_open(FFPlayer *ffp, int stream_index)
             is->auddec.start_pts_tb = is->audio_st->time_base;
         }
         if ((ret = decoder_start(&is->auddec, audio_thread, ffp, "ff_audio_dec")) < 0) {
-            ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_AUDIO_DECODER_START);
             goto out;
         }
 
@@ -2765,7 +2770,6 @@ static int stream_component_open(FFPlayer *ffp, int stream_index)
         }
 
         if ((ret = decoder_start(&is->viddec, video_thread, ffp, "ff_video_dec")) < 0) {
-            ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_VIDEO_DECODER_START);
             goto out;
         }
         is->queue_attachments_req = 1;
@@ -2932,6 +2936,7 @@ static int read_thread(void *arg)
         av_log(NULL, AV_LOG_ERROR, "Option %s not found.\n", t->key);
 #ifdef FFP_MERGE
         ret = AVERROR_OPTION_NOT_FOUND;
+        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_AV_DICT_GET);
         goto fail;
 #endif
     }
@@ -3217,8 +3222,10 @@ static int read_thread(void *arg)
         if (is->queue_attachments_req) {
             if (is->video_st && (is->video_st->disposition & AV_DISPOSITION_ATTACHED_PIC)) {
                 AVPacket copy;
-                if ((ret = av_copy_packet(&copy, &is->video_st->attached_pic)) < 0)
+                if ((ret = av_copy_packet(&copy, &is->video_st->attached_pic)) < 0) {
+                    ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_AV_COPY_PACKET);
                     goto fail;
+                }
                 packet_queue_put(&is->videoq, &copy);
                 packet_queue_put_nullpacket(&is->videoq, is->video_stream);
             }
@@ -3251,6 +3258,7 @@ static int read_thread(void *arg)
                 stream_seek(is, ffp->start_time != AV_NOPTS_VALUE ? ffp->start_time : 0, 0, 0);
             } else if (ffp->autoexit) {
                 ret = AVERROR_EOF;
+                ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_AUTO_EXIT);
                 goto fail;
             } else {
                 ffp_statistic_l(ffp);
@@ -3395,7 +3403,7 @@ static int read_thread(void *arg)
 
     if (!ffp->prepared || !is->abort_request) {
         ffp->last_error = last_error;
-        ffp_notify_msg2(ffp, FFP_MSG_ERROR, last_error);
+        //ffp_notify_msg2(ffp, FFP_MSG_ERROR, last_error);
     }
     SDL_DestroyMutex(wait_mutex);
     return 0;
@@ -3411,8 +3419,11 @@ static VideoState *stream_open(FFPlayer *ffp, const char *filename, AVInputForma
     if (!is)
         return NULL;
     is->filename = av_strdup(filename);
-    if (!is->filename)
+    if (!is->filename) {
+        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_FILE_NAME);
         goto fail;
+    }
+
     is->iformat = iformat;
     is->ytop    = 0;
     is->xleft   = 0;
