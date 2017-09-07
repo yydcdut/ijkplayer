@@ -25,6 +25,12 @@ char *appendCharPointer(const char *s1, const char *s2) {
     return result;
 }
 
+#define FFP_VERSION_MODULE_NAME_LENGTH 13
+char *ffp_show_version_str_log(const char *module, const char *version) {
+    //char s[50];
+    //sprintf(s, "%-*s: %s\n", FFP_VERSION_MODULE_NAME_LENGTH, module, version);
+}
+
 //将i转化位字符串存入str
 char *convertInt2Str(char *str ,unsigned i)
 {
@@ -75,12 +81,12 @@ char *logDict(char* label, AVDictionary *dict) {
 void post_event_log(JNIEnv *env, jobject weak_this, int what, int arg1, int arg2, jobject obj)
 {
     // MPTRACE("post_event2(%p, %p, %d, %d, %d, %p)", (void*)env, (void*) weak_this, what, arg1, arg2, (void*)obj);
-    J4AC_IjkMediaPlayer__postEventFromNative(env, weak_this, what, arg1, arg2, obj);
+    //J4AC_IjkMediaPlayer__postEventFromNative(env, weak_this, what, arg1, arg2, obj);
     // MPTRACE("post_event2()=void");
 }
 
 unsigned char writeFile(char* content) {
-    FILE *fp;
+    /*FILE *fp;
     fp = fopen("/sdcard/tieba_video.log", "a+");
     if (fp == NULL) {
         fclose(fp);
@@ -90,7 +96,7 @@ unsigned char writeFile(char* content) {
     //for (int i = 0; i < 5; i++) {
         fwrite(content, length, 1, fp);
     //
-    fclose(fp);
+    fclose(fp);*/
     return true;
 
 }

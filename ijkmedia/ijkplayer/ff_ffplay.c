@@ -4050,100 +4050,100 @@ int ffp_prepare_async_l(FFPlayer *ffp, const char *file_name)
     }
 
     av_log(NULL, AV_LOG_INFO, "===== versions =====\n");
-    writeFile("===== versions =====\n");
-    ffp_notify_msg4(ffp, FFP_MSG_IJK_LOG, 0, 0, "===== versions =====", sizeof("===== versions ====="));
+    /*writeFile("===== versions =====\n");
+    ffp_notify_msg4(ffp, FFP_MSG_IJK_LOG, 0, 0, "===== versions =====", sizeof("===== versions ====="));*/
 
     ffp_show_version_str(ffp, "ijkplayer",      ijk_version_info());
-    char *ijkplayerLog = appendCharPointer("\nijkplayer    : ", ijk_version_info());
+    /*char *ijkplayerLog = appendCharPointer("\nijkplayer    : ", ijk_version_info());
     if (ijkplayerLog) {
         writeFile(ijkplayerLog);
         ffp_notify_msg4(ffp, FFP_MSG_IJK_LOG, 0, 0, ijkplayerLog, sizeof(ijkplayerLog) * strlen(ijkplayerLog));
-    }
+    }*/
 
     ffp_show_version_str(ffp, "FFmpeg",         av_version_info());
-    char *FFmpegLog = appendCharPointer("\nFFmpeg       : ", av_version_info());
+    /*char *FFmpegLog = appendCharPointer("\nFFmpeg       : ", av_version_info());
     if (FFmpegLog) {
         writeFile(FFmpegLog);
         ffp_notify_msg4(ffp, FFP_MSG_IJK_LOG, 0, 0, FFmpegLog, sizeof(FFmpegLog) * strlen(FFmpegLog));
-    }
+    }*/
 
     ffp_show_version_int(ffp, "libavutil",      avutil_version());
-    char *libavutilLog = appendCharPointer("\nlibavutil    : ", logUnsigned(avutil_version()));
+    /*char *libavutilLog = appendCharPointer("\nlibavutil    : ", logUnsigned(avutil_version()));
     if (libavutilLog) {
         writeFile(libavutilLog);
         ffp_notify_msg4(ffp, FFP_MSG_IJK_LOG, 0, 0, libavutilLog, sizeof(libavutilLog) * strlen(libavutilLog));
-    }
+    }*/
 
     ffp_show_version_int(ffp, "libavcodec",     avcodec_version());
-    char *libavcodecLog = appendCharPointer("\nlibavcodec   : ", logUnsigned(avcodec_version()));
+    /*char *libavcodecLog = appendCharPointer("\nlibavcodec   : ", logUnsigned(avcodec_version()));
     if (libavcodecLog) {
         writeFile(libavcodecLog);
         ffp_notify_msg4(ffp, FFP_MSG_IJK_LOG, 0, 0, libavcodecLog, sizeof(libavcodecLog) * strlen(libavcodecLog));
-    }
+    }*/
 
     ffp_show_version_int(ffp, "libavformat",    avformat_version());
-    char *libavformatLog = appendCharPointer("\nlibavformat  : ", logUnsigned(avformat_version()));
+    /*char *libavformatLog = appendCharPointer("\nlibavformat  : ", logUnsigned(avformat_version()));
     if (libavformatLog) {
         writeFile(libavformatLog);
         ffp_notify_msg4(ffp, FFP_MSG_IJK_LOG, 0, 0, libavformatLog, sizeof(libavformatLog) * strlen(libavformatLog));
-    }
+    }*/
 
     ffp_show_version_int(ffp, "libswscale",     swscale_version());
-    char *libswscaleLog = appendCharPointer("l\nibswscale   : ", logUnsigned(swscale_version()));
+    /*char *libswscaleLog = appendCharPointer("l\nibswscale   : ", logUnsigned(swscale_version()));
     if (libswscaleLog) {
         writeFile(libswscaleLog);
         ffp_notify_msg4(ffp, FFP_MSG_IJK_LOG, 0, 0, libswscaleLog, sizeof(libswscaleLog) * strlen(libswscaleLog));
-    }
+    }*/
 
     ffp_show_version_int(ffp, "libswresample",  swresample_version());
-    char *libswresampleLog = appendCharPointer("\nlibswresample: ", logUnsigned(swresample_version()));
+    /*char *libswresampleLog = appendCharPointer("\nlibswresample: ", logUnsigned(swresample_version()));
     if (libswresampleLog) {
         writeFile(libswresampleLog);
         ffp_notify_msg4(ffp, FFP_MSG_IJK_LOG, 0, 0, libswresampleLog, sizeof(libswresampleLog) * strlen(libswresampleLog));
-    }
+    }*/
 
     av_log(NULL, AV_LOG_INFO, "===== options =====\n");
-    writeFile("\n===== options =====");
-    ffp_notify_msg4(ffp, FFP_MSG_IJK_LOG, 0, 0, "===== options =====", sizeof("===== options ====="));
+    /*writeFile("\n===== options =====");
+    ffp_notify_msg4(ffp, FFP_MSG_IJK_LOG, 0, 0, "===== options =====", sizeof("===== options ====="));*/
 
     ffp_show_dict(ffp, "player-opts", ffp->player_opts);
-    if (ffp->player_opts) {
+    /*if (ffp->player_opts) {
         char *playerOptsLog = logDict("\nplayer-opts : ", ffp->player_opts);
         writeFile(playerOptsLog);
         ffp_notify_msg4(ffp, FFP_MSG_IJK_LOG, 0, 0, playerOptsLog, sizeof(playerOptsLog) * strlen(playerOptsLog));
-    }
+    }*/
 
     ffp_show_dict(ffp, "format-opts", ffp->format_opts);
-    if (ffp->format_opts) {
+    /*if (ffp->format_opts) {
         char *formatOptsLog = logDict("\nformat-opts : ", ffp->format_opts);
         writeFile(formatOptsLog);
         ffp_notify_msg4(ffp, FFP_MSG_IJK_LOG, 0, 0, formatOptsLog, sizeof(formatOptsLog) * strlen(formatOptsLog));
-    }
+    }*/
 
     ffp_show_dict(ffp, "codec-opts ", ffp->codec_opts);
-    if (ffp->codec_opts) {
+    /*if (ffp->codec_opts) {
         char *codecOptsLog = logDict("\ncodec_opts : ", ffp->codec_opts);
         writeFile(codecOptsLog);
         ffp_notify_msg4(ffp, FFP_MSG_IJK_LOG, 0, 0, codecOptsLog, sizeof(codecOptsLog) * strlen(codecOptsLog));
-    }
+    }*/
 
     ffp_show_dict(ffp, "sws-opts   ", ffp->sws_dict);
-    if (ffp->sws_dict) {
+    /*if (ffp->sws_dict) {
         char *swsDictLog = logDict("\nsws-opts : ", ffp->sws_dict);
         writeFile(swsDictLog);
         ffp_notify_msg4(ffp, FFP_MSG_IJK_LOG, 0, 0, swsDictLog, sizeof(swsDictLog) * strlen(swsDictLog));
-    }
+    }*/
 
     ffp_show_dict(ffp, "swr-opts   ", ffp->swr_opts);
-    if (ffp->swr_opts){
+    /*if (ffp->swr_opts){
         char *swrOptsLog = logDict("\nswr_opts : ", ffp->swr_opts);
         writeFile(swrOptsLog);
         ffp_notify_msg4(ffp, FFP_MSG_IJK_LOG, 0, 0, swrOptsLog, sizeof(swrOptsLog) * strlen(swrOptsLog));
-    }
+    }*/
 
     av_log(NULL, AV_LOG_INFO, "===================\n");
-    writeFile("\n===================");
-    ffp_notify_msg4(ffp, FFP_MSG_IJK_LOG, 0, 0, "===================", sizeof("==================="));
+    /*writeFile("\n===================");
+    ffp_notify_msg4(ffp, FFP_MSG_IJK_LOG, 0, 0, "===================", sizeof("==================="));*/
 
     av_opt_set_dict(ffp, &ffp->player_opts);
     if (!ffp->aout) {
