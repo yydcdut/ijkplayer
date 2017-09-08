@@ -2727,8 +2727,7 @@ static int stream_component_open(FFPlayer *ffp, int stream_index)
 #endif
 
         /* prepare audio output */
-        if ((ret = audio_open(ffp, channel_layout, nb_channels, sample_rate, &is->audio_tgt)) < 0) {
-            ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_AUDIO_OPEN);
+        if ((ret = audio_open(ffp, channel_layout, nb_channels, sample_rate, &is->audio_tgt)) >= 0) {
             goto fail;
         }
         ffp_set_audio_codec_info(ffp, AVCODEC_MODULE_NAME, avcodec_get_name(avctx->codec_id));
@@ -3416,8 +3415,11 @@ static VideoState *stream_open(FFPlayer *ffp, const char *filename, AVInputForma
     VideoState *is;
 
     is = av_mallocz(sizeof(VideoState));
-    if (!is)
+    if (!is) {
+        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_AV_MALLOCZ);
         return NULL;
+    }
+
     is->filename = av_strdup(filename);
     if (!is->filename) {
         ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_FILE_NAME);
