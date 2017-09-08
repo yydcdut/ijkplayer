@@ -3493,7 +3493,7 @@ static VideoState *stream_open(FFPlayer *ffp, const char *filename, AVInputForma
 
     is->video_refresh_tid = SDL_CreateThreadEx(&is->_video_refresh_tid, video_refresh_thread, ffp, "ff_vout");
     if (!is->video_refresh_tid) {
-        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_VIDEO_REFRESH_TID);
+        ffp_notify_msg2(ffp, FFP_MSG_IJK_ERROR_LOG, MEDIA_ERROR_IJK_PLAYER_VIDEO_REFRESH_TID);
         av_freep(&ffp->is);
         return NULL;
     }
