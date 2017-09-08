@@ -41,7 +41,7 @@ enum media_event_type {
     MEDIA_ERROR             = 100,      // arg1, arg2
     MEDIA_INFO              = 200,      // arg1, arg2
     MEDIA_IJK_LOG           = 300,      // obj
-    MEDIA_IJK_ERROR         = 400,      // arg1
+    MEDIA_IJK_ERROR_LOG     = 400,      // arg1, arg2
 
 
 
@@ -118,7 +118,6 @@ enum media_error_type {
     MEDIA_ERROR_IJK_PLAYER_STREAM_INDEX                 = -10040,//-10040-->-10025
 
 };
-//ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_VIDEO_REFRESH_TID);
 
 // Info and warning codes for the media player framework.  These are non fatal,
 // the playback is going on but there might be some user visible issues.

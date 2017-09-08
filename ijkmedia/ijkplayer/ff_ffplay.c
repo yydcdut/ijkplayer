@@ -2620,19 +2620,19 @@ static int stream_component_open(FFPlayer *ffp, int stream_index)
     int stream_lowres = ffp->lowres;
 
     if (stream_index < 0 || stream_index >= ic->nb_streams) {
-        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_STREAM_INDEX);
+        ffp_notify_msg2(ffp, FFP_MSG_IJK_ERROR_LOG, MEDIA_ERROR_IJK_PLAYER_STREAM_INDEX);
         return -1;
     }
 
     avctx = avcodec_alloc_context3(NULL);
     if (!avctx) {
-        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_AVCODEC_ALLOC_CONTEXT3);
+        ffp_notify_msg2(ffp, FFP_MSG_IJK_ERROR_LOG, MEDIA_ERROR_IJK_PLAYER_AVCODEC_ALLOC_CONTEXT3);
         return AVERROR(ENOMEM);
     }
 
     ret = avcodec_parameters_to_context(avctx, ic->streams[stream_index]->codecpar);
     if (ret < 0){
-        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_AVCODEC_PARAMETERS_TO_CONTEXT);
+        ffp_notify_msg2(ffp, FFP_MSG_IJK_ERROR_LOG, MEDIA_ERROR_IJK_PLAYER_AVCODEC_PARAMETERS_TO_CONTEXT);
         goto fail;
     }
 
@@ -2649,7 +2649,7 @@ static int stream_component_open(FFPlayer *ffp, int stream_index)
     if (forced_codec_name)
         codec = avcodec_find_decoder_by_name(forced_codec_name);
     if (!codec) {
-        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_AVCODEC_NOT_FIND);
+        ffp_notify_msg2(ffp, FFP_MSG_IJK_ERROR_LOG, MEDIA_ERROR_IJK_PLAYER_AVCODEC_NOT_FIND);
         if (forced_codec_name) av_log(NULL, AV_LOG_WARNING,
                                       "No codec could be found with name '%s'\n", forced_codec_name);
         else                   av_log(NULL, AV_LOG_WARNING,
@@ -2684,7 +2684,7 @@ static int stream_component_open(FFPlayer *ffp, int stream_index)
     if (avctx->codec_type == AVMEDIA_TYPE_VIDEO || avctx->codec_type == AVMEDIA_TYPE_AUDIO)
         av_dict_set(&opts, "refcounted_frames", "1", 0);
     if ((ret = avcodec_open2(avctx, codec, &opts)) < 0) {
-        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_AVCODEC_OPEN);
+        ffp_notify_msg2(ffp, FFP_MSG_IJK_ERROR_LOG, MEDIA_ERROR_IJK_PLAYER_AVCODEC_OPEN);
         goto fail;
     }
     if ((t = av_dict_get(opts, "", NULL, AV_DICT_IGNORE_SUFFIX))) {
@@ -2709,7 +2709,7 @@ static int stream_component_open(FFPlayer *ffp, int stream_index)
             is->audio_filter_src.fmt            = avctx->sample_fmt;
             SDL_LockMutex(ffp->af_mutex);
             if ((ret = configure_audio_filters(ffp, ffp->afilters, 0)) < 0) {
-                ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_CONFIGURE_AUDIO_FILTERS);
+                ffp_notify_msg2(ffp, FFP_MSG_IJK_ERROR_LOG, MEDIA_ERROR_IJK_PLAYER_CONFIGURE_AUDIO_FILTERS);
                 SDL_UnlockMutex(ffp->af_mutex);
                 goto fail;
             }
@@ -2764,7 +2764,7 @@ static int stream_component_open(FFPlayer *ffp, int stream_index)
         decoder_init(&is->viddec, avctx, &is->videoq, is->continue_read_thread);
         ffp->node_vdec = ffpipeline_open_video_decoder(ffp->pipeline, ffp);
         if (!ffp->node_vdec) {
-            ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_OPEN_VIDEO_DECODER);
+            ffp_notify_msg2(ffp, FFP_MSG_IJK_ERROR_LOG, MEDIA_ERROR_IJK_PLAYER_OPEN_VIDEO_DECODER);
             goto fail;
         }
 
@@ -3416,7 +3416,7 @@ static VideoState *stream_open(FFPlayer *ffp, const char *filename, AVInputForma
 
     is = av_mallocz(sizeof(VideoState));
     if (!is) {
-        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_AV_MALLOCZ);
+        ffp_notify_msg2(ffp, FFP_MSG_IJK_ERROR_LOG, MEDIA_ERROR_IJK_PLAYER_AV_MALLOCZ);
         return NULL;
     }
 
@@ -3500,7 +3500,7 @@ static VideoState *stream_open(FFPlayer *ffp, const char *filename, AVInputForma
 
     is->read_tid = SDL_CreateThreadEx(&is->_read_tid, read_thread, ffp, "ff_read");
     if (!is->read_tid) {
-        ffp_notify_msg2(ffp, FFP_MSG_ERROR, MEDIA_ERROR_IJK_PLAYER_READ_TID);
+        ffp_notify_msg2(ffp, FFP_MSG_IJK_ERROR_LOG, MEDIA_ERROR_IJK_PLAYER_READ_TID);
         av_log(NULL, AV_LOG_FATAL, "SDL_CreateThread(): %s\n", SDL_GetError());
 fail:
         is->abort_request = true;

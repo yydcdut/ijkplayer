@@ -1036,6 +1036,9 @@ static void message_loop_n(JNIEnv *env, IjkMediaPlayer *mp)
                 post_event2(env, weak_thiz, MEDIA_IJK_LOG, 0, 0, NULL);
             }
             break;
+        case FFP_MSG_IJK_ERROR_LOG:
+            post_event(env, weak_thiz, MEDIA_IJK_ERROR_LOG, MEDIA_ERROR_IJK_PLAYER, msg.arg1);
+            break;
         default:
             ALOGE("unknown FFP_MSG_xxx(%d)\n", msg.what);
             break;
