@@ -2727,7 +2727,7 @@ static int stream_component_open(FFPlayer *ffp, int stream_index)
 #endif
 
         /* prepare audio output */
-        if ((ret = audio_open(ffp, channel_layout, nb_channels, sample_rate, &is->audio_tgt)) >= 0) {
+        if ((ret = audio_open(ffp, channel_layout, nb_channels, sample_rate, &is->audio_tgt)) < 0) {
             goto fail;
         }
         ffp_set_audio_codec_info(ffp, AVCODEC_MODULE_NAME, avcodec_get_name(avctx->codec_id));
