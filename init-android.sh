@@ -17,9 +17,10 @@
 #
 
 # IJK_FFMPEG_UPSTREAM=git://git.videolan.org/ffmpeg.git
-IJK_FFMPEG_UPSTREAM=https://github.com/Bilibili/FFmpeg.git
-IJK_FFMPEG_FORK=https://github.com/Bilibili/FFmpeg.git
-IJK_FFMPEG_COMMIT=ff3.3--ijk0.8.0--20170710--001
+IJK_FFMPEG_UPSTREAM=https://github.com/yydcdut/FFmpeg.git
+IJK_FFMPEG_FORK=https://github.com/yydcdut/FFmpeg.git
+#IJK_FFMPEG_COMMIT=ff3.3--ijk0.8.0--20170710--001
+IJK_FFMPEG_COMMIT=origin/nt_dev
 IJK_FFMPEG_LOCAL_REPO=extra/ffmpeg
 
 set -e
@@ -39,11 +40,11 @@ function pull_fork()
     cd -
 }
 
-pull_fork "armv5"
+#pull_fork "armv5"
 pull_fork "armv7a"
-pull_fork "arm64"
-pull_fork "x86"
-pull_fork "x86_64"
+#pull_fork "arm64"
+#pull_fork "x86"
+#pull_fork "x86_64"
 
 ./init-config.sh
 ./init-android-libyuv.sh
