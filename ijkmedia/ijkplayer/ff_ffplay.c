@@ -2927,6 +2927,9 @@ static int read_thread(void *arg)
         print_error(is->filename, err);
         ret = -1;
         goto fail;
+    }else{
+	av_notify_err_string(MEDIA_ERROR_FFP_AVFORMAT_OPEN_INPUT_OK,
+			MEDIA_ERROR_FFP_AVFORMAT_OPEN_INPUT_OK,"avformat_open_input ok",0);
     }
     if (scan_all_pmts_set)
         av_dict_set(&ffp->format_opts, "scan_all_pmts", NULL, AV_DICT_MATCH_CASE);

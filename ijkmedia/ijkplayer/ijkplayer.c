@@ -392,6 +392,33 @@ static int ijkmp_msg_loop(void *arg)
     return ret;
 }
 
+static void ijkmp_notify_msg_callback(void *ffp,int mainerr, int suberr, void *obj, int obj_len)
+{
+    if(ffp != NULL){
+        FFPlayer  *ffplayer=(FFPlayer *)ffp;
+	ffp_notify_msg4(ffplayer,FFP_MSG_IJK_ERROR, mainerr, suberr, obj, obj_len);
+    }
+}
+
+static void ijkmp_notify_err_string_callback(void *ffp,int mainerr, int suberr, void *str, int ret)
+{
+
+    if(ffp != NULL)
+    {
+	char *buf = av_asprintf("ret=%d,info=%s", ret,(char *)str);
+	if(buf != NULL){
+	    int len = strlen(buf);
+            FFPlayer  *ffplayer=(FFPlayer *)ffp;
+	    ffp_notify_msg4(ffplayer,FFP_MSG_IJK_ERROR, mainerr, suberr, buf, len + 1);
+	    av_free(buf);
+	}else{
+            FFPlayer  *ffplayer=(FFPlayer *)ffp;
+	    ffp_notify_msg4(ffplayer,FFP_MSG_IJK_ERROR, mainerr, suberr, "", 1);
+	}
+
+    }
+}
+
 static int ijkmp_prepare_async_l(IjkMediaPlayer *mp)
 {
     assert(mp);
@@ -413,6 +440,9 @@ static int ijkmp_prepare_async_l(IjkMediaPlayer *mp)
 
     msg_queue_start(&mp->ffplayer->msg_queue);
 
+    av_set_notify_msg_callback((void *)mp->ffplayer,ijkmp_notify_msg_callback);
+    av_set_notify_err_string_callback((void *)mp->ffplayer,ijkmp_notify_err_string_callback);
+
     // released in msg_loop
     ijkmp_inc_ref(mp);
     mp->msg_thread = SDL_CreateThreadEx(&mp->_msg_thread, ijkmp_msg_loop, mp, "ff_msg_loop");
@@ -420,6 +450,7 @@ static int ijkmp_prepare_async_l(IjkMediaPlayer *mp)
     // TODO: 9 release weak_thiz if pthread_create() failed;
 
     int retval = ffp_prepare_async_l(mp->ffplayer, mp->data_source);
+
     if (retval < 0) {
         ijkmp_change_state_l(mp, MP_STATE_ERROR);
         return retval;

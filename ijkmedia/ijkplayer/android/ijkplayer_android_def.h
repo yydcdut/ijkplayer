@@ -28,6 +28,7 @@
  * frameworks/av/include/media/mediaplayer.h
  */
 
+
 //
 enum media_event_type {
     MEDIA_NOP               = 0,        // interface test message
@@ -42,6 +43,8 @@ enum media_event_type {
     MEDIA_INFO              = 200,      // arg1, arg2
     MEDIA_IJK_LOG           = 300,      // obj
     MEDIA_IJK_ERROR_LOG     = 400,      // arg1, arg2
+    MEDIA_IJK_ERROR         = 500,      // arg1, arg2
+
 
 
 
@@ -66,6 +69,9 @@ enum media_event_type {
 //        media itself.
 //   3xx: Runtime errors. Some extraordinary condition arose making the playback
 //        impossible.
+//
+//
+//   need same with android/contrib/ffmpeg-armv7a/libavutil/log.h
 //
 enum media_error_type {
     // 0xx

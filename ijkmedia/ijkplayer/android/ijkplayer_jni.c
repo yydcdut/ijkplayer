@@ -1036,6 +1036,17 @@ static void message_loop_n(JNIEnv *env, IjkMediaPlayer *mp)
                 post_event2(env, weak_thiz, MEDIA_IJK_LOG, 0, 0, NULL);
             }
             break;
+	case FFP_MSG_IJK_ERROR:
+            if (msg.obj) {
+                jstring text = (*env)->NewStringUTF(env, (char *)msg.obj);
+                post_event2(env, weak_thiz, MEDIA_IJK_ERROR, msg.arg1, msg.arg2, text);
+                J4A_DeleteLocalRef__p(env, &text);
+            }
+            else {
+                post_event2(env, weak_thiz, MEDIA_IJK_ERROR, msg.arg1, msg.arg2, NULL);
+            }
+            break;
+
         case FFP_MSG_IJK_ERROR_LOG:
             post_event(env, weak_thiz, MEDIA_IJK_ERROR_LOG, MEDIA_ERROR_IJK_PLAYER, msg.arg1);
             break;

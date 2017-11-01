@@ -46,6 +46,7 @@
 #define FFP_MSG_GET_IMG_STATE               1000    /* arg1 = timestamp, arg2 = result code, obj = file name*/
 #define FFP_MSG_IJK_LOG                     1100
 #define FFP_MSG_IJK_ERROR_LOG               1200
+#define FFP_MSG_IJK_ERROR                   1300
 
 #define FFP_MSG_VIDEO_DECODER_OPEN          10001
 
